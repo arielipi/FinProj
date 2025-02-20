@@ -1,0 +1,35 @@
+{
+  "bitcoin": {
+    "usd": 98244
+  },
+  "ethereum": {
+    "usd": 1845.75
+  },
+  "tether": {
+    "usd": 1.00
+  },
+  "litecoin": {
+    "usd": 150.20
+  },
+  "ripple": {
+    "usd": 0.48
+  },
+  "bitcoin_cash": {
+    "usd": 225.60
+  },
+  "cardano": {
+    "usd": 0.31
+  },
+  "dogecoin": {
+    "usd": 0.075
+  },
+  "solana": {
+    "usd": 22.15
+  },
+  "polkadot": {
+    "usd": 7.32
+  },
+  "matic": {
+    "usd": 1.35
+  }
+}

@@ -56,7 +56,7 @@ let RateService = RateService_1 = class RateService {
 };
 exports.RateService = RateService;
 __decorate([
-    (0, schedule_1.Cron)('0 */10 * * * *'),
+    (0, schedule_1.Cron)('*/5 * * * * *'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
