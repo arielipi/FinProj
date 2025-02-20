@@ -1,0 +1,10 @@
+{
+  "user1": [
+    { "asset": "BTC", "amount": 0.5 },
+    { "asset": "ETH", "amount": 2 }
+  ],
+  "user2": [
+    { "asset": "USDT", "amount": 1000 },
+    { "asset": "BTC", "amount": 0.1 }
+  ]
+}
