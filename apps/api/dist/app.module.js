@@ -8,16 +8,25 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
-const balance_controller_1 = require("./balance.controller");
-const balance_service_1 = require("./balance.service");
+const crypto = require('crypto');
+const schedule_1 = require("@nestjs/schedule");
+const axios_1 = require("@nestjs/axios");
+const balance_module_1 = require("./balance.module");
+const rate_module_1 = require("./rate.module");
+if (typeof globalThis.crypto === 'undefined') {
+    globalThis.crypto = crypto;
+}
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [],
-        controllers: [balance_controller_1.BalanceController],
-        providers: [balance_service_1.BalanceService]
+        imports: [
+            axios_1.HttpModule,
+            schedule_1.ScheduleModule.forRoot(),
+            balance_module_1.BalanceModule,
+            rate_module_1.RateModule,
+        ],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map
