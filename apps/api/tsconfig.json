@@ -11,8 +11,14 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
-    "crypto": [
-      "node_modules/crypto-js"
+      "@app/shared-services": [
+        "libs/shared-services/src"
+      ],
+      "@app/shared-services/*": [
+        "libs/shared-services/src/*"
+      ],
+      "crypto": [
+        "node_modules/crypto-js"
       ]
     },
     "incremental": true,

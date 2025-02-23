@@ -4,45 +4,41 @@ import { Cron } from '@nestjs/schedule';
 import { lastValueFrom } from 'rxjs';
 import * as fs from 'fs';
 import * as path from 'path';
+import { FileService } from '@app/shared-services/file.service';
 
 const DATA_FILE = path.join(__dirname, 'rates.json');
 const COINGECKO_API = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,tether&vs_currencies=usd';
 
 @Injectable()
 export class RateService {
+  private readonly ratesFile = 'rates.json';
   private readonly logger = new Logger(RateService.name);
 
-  constructor(private readonly httpService: HttpService) {}
+  constructor(private readonly httpService: HttpService, private readonly fileService: FileService) {}
 
-  private loadRates(): any {
-    if (!fs.existsSync(DATA_FILE)) {
-      return {};
-    }
-    return JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
+  public async getRates(): Promise<any> {
+    return await this.fileService.readJsonFile(this.ratesFile);
+
   }
 
-  private saveRates(rates: any) {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(rates, null, 2));
+  private async saveRates(newRates: any): Promise<void> {
+    await this.fileService.writeJsonFile(this.ratesFile, newRates);
   }
 
   async fetchRates(): Promise<any> {
     try {
       const response = await lastValueFrom(this.httpService.get(COINGECKO_API));
       const rates = response.data;
-      this.saveRates(rates);
+      await this.saveRates(rates);
       return rates;
     } catch (error) {
       this.logger.error('Failed to fetch rates', error);
-      return this.loadRates();
+      return this.getRates();
     }
   }
 
-  getRates(): any {
-    return this.loadRates();
-  }
-
-  @Cron('0 */10 * * * *') // Run every 10 minutes
-  //@Cron('*/5 * * * * *') // Run every 5 seconds
+  // @Cron('0 */10 * * * *') // Run every 10 minutes
+  @Cron('*/5 * * * * *') // Run every 5 seconds
   async updateRates() {
     this.logger.log('Updating cryptocurrency rates...');
     await this.fetchRates();

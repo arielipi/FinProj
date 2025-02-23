@@ -4,6 +4,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { HttpModule } from '@nestjs/axios';
 import { BalanceModule } from './balance.module';
 import { RateModule } from './rate.module';
+import { SharedServicesModule } from '@app/shared-services';
 
 // Ensure that the `crypto` module is available globally
 if (typeof globalThis.crypto === 'undefined') {
@@ -11,6 +12,7 @@ if (typeof globalThis.crypto === 'undefined') {
 }
 @Module({
   imports: [
+    SharedServicesModule,
     HttpModule, // Ensure HttpModule is available globally
     ScheduleModule.forRoot(), // Enables background job scheduling
     BalanceModule, // Balance service module

@@ -6,8 +6,8 @@ export class RateController {
   constructor(private readonly rateService: RateService) {}
 
   @Get()
-  getRates() {
-    return this.rateService.getRates();
+  async getRates() {
+    return await this.rateService.getRates();
   }
 
   @Get('refresh')
