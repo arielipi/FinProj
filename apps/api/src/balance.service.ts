@@ -1,64 +1,70 @@
 import { Injectable } from '@nestjs/common';
-import * as fs from 'fs';
-import * as path from 'path';
-import { Balance } from './Balance';
+import { FileService } from '@app/shared-services/file.service';
 
-const DATA_FILE = path.join(__dirname, 'balances.json');
+interface Balances {
+  [userId: string]: { [asset: string]: number }; // Defines userId maps to asset balances
+}
+
+interface Balance {
+  asset: string;
+  amount: number;
+}
 
 @Injectable()
 export class BalanceService {
-  private loadBalances(): Record<string, Balance[]> {
-    if (!fs.existsSync(DATA_FILE)) {
-      return {};
-    }
-    return JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
+  private readonly balanceFile = 'balances.json';
+
+  constructor(private readonly fileService: FileService) {}
+
+  // Fetch user balance from file
+  async getBalance(userId: string): Promise<{ [asset: string]: number } | null> {
+    const balances: Balances = await this.fileService.readJsonFile(this.balanceFile) || {};
+    return balances[userId] ?? null;
   }
 
-  private saveBalances(balances: Record<string, Balance[]>) {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(balances, null, 2));
-  }
-
-  getBalances(userId: string): Balance[] {
-    const balances = this.loadBalances();
-    return balances[userId] || [];
-  }
-
-  addBalance(userId: string, balance: Balance) {
-    const balances = this.loadBalances();
+  // Add balance to a user's asset
+  async addBalance(userId: string, balance: Balance): Promise<void> {
+    const balances: Balances = await this.fileService.readJsonFile(this.balanceFile) || {};
     if (!balances[userId]) {
-      balances[userId] = [];
+      balances[userId] = {};
     }
-    const existing = balances[userId].find(b => b.asset === balance.asset);
-    if (existing) {
-      existing.amount += balance.amount;
+
+    if (balances[userId][balance.asset]) {
+      balances[userId][balance.asset] += balance.amount; // Add to existing asset balance
     } else {
-      balances[userId].push(balance);
+      balances[userId][balance.asset] = balance.amount; // Set new asset balance
     }
-    this.saveBalances(balances);
-    return { message: 'Balance updated successfully' };
+
+    await this.fileService.writeJsonFile(this.balanceFile, balances);
   }
 
-  removeBalance(userId: string, asset: string) {
-    const balances = this.loadBalances();
-    if (!balances[userId]) {
-      return { message: 'No balances found for this user' };
+  // Remove a specific asset for a user
+  async removeBalance(userId: string, asset: string): Promise<void> {
+    const balances: Balances = await this.fileService.readJsonFile(this.balanceFile) || {};
+    if (balances[userId] && balances[userId][asset]) {
+      delete balances[userId][asset]; // Remove the asset
+      await this.fileService.writeJsonFile(this.balanceFile, balances);
     }
-    balances[userId] = balances[userId].filter(b => b.asset !== asset);
-    this.saveBalances(balances);
-    return { message: 'Asset removed successfully' };
   }
 
-  async getTotalBalance(userId: string, currency: string) {
-    const balances = this.loadBalances();
-    const userBalances = balances[userId] || [];
-
-    // Mock conversion rates (in real-world scenarios, integrate an API)
-    const conversionRates: Record<string, number> = { BTC: 50000, ETH: 3000, USDT: 1 };
-    let total = 0;
-    for (const { asset, amount } of userBalances) {
-      const rate = conversionRates[asset] ?? 1;
-      total += amount * rate;
+  // Get the total balance for a user in a specific currency
+  async getTotalBalance(userId: string, currency: string): Promise<number> {
+    const balances: Balances = await this.fileService.readJsonFile(this.balanceFile) || {};
+    const userBalances = balances[userId] || {};
+    
+    // Calculate total balance (assuming exchange rate logic exists or is added later)
+    let totalBalance = 0;
+    for (const [asset, amount] of Object.entries(userBalances)) {
+      // Example: You may need to convert the asset to the requested currency, using exchange rates.
+      // For now, just summing the amounts.
+      totalBalance += amount;
     }
-    return { total, currency };
+
+    return totalBalance;
+  }
+
+  // Fetch all balances (useful for admin operations)
+  async getAllBalances(): Promise<Balances> {
+    return await this.fileService.readJsonFile(this.balanceFile) || {};
   }
 }

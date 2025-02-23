@@ -65,7 +65,7 @@ export class RateService {
   
 
    @Cron('0 */10 * * * *') // Run every 10 minutes
- // @Cron('*/5 * * * * *') // Run every 5 seconds
+  //@Cron('*/5 * * * * *') // Run every 5 seconds
   async updateRates() {
     this.logger.log('Updating cryptocurrency rates...');
     await this.fetchRates();
